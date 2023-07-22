@@ -1,7 +1,6 @@
 """
 Potential TODO ideas
-- create "Total Generated" column by summing all columns for given index except load
-- create inverse "Generated Overhead" column by graphing [...]
+-
 """
 
 # imports
@@ -70,8 +69,15 @@ load_data.set_index("Date", drop=True, inplace=True)
 # applies int() operator to all entries in dataframe
 load_data = load_data.applymap(lambda value: int(value))
 
+# sum of all generation sources
 load_data["Total Generation"] = load_data["VER"] + load_data["Hydro"] + load_data["Fossil/Biomass"] + load_data["Nuclear"]
+
+# excess generation, expressed as the difference between total generation and system load
 load_data["Excess"] = load_data["Total Generation"] - load_data["Load"]
+load_data["Excess"].where(load_data["Excess"] >= 0, 0, inplace=True)  # limits the lowest potential value of column to 0
+
+# if load_data["Excess"].min() == 0:
+#     load_data["Import"] =
 
 info_frame = load_data.aggregate(["max", "min", "average"])
 info_frame = info_frame.applymap(lambda value: int(value))
@@ -114,7 +120,7 @@ plt.yticks(y_ticks, [str(val) for val in y_ticks])
 # visual modifiers
 plt.minorticks_on()
 plt.grid()
-plt.ylim(0, 13000)
+plt.ylim(-10, 13000)
 plt.xlim(major_ticks[0], major_ticks[-1])
 plt.legend()
 plt.yscale("linear")
